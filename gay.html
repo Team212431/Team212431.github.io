@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creative Idea Generator 5.0</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #121212; --surface-dark: #1e1e1e; --primary-dark: #bb86fc; --secondary-dark: #03dac6; --text-dark: rgba(255, 255, 255, 0.87); --text-secondary-dark: rgba(255, 255, 255, 0.6); --border-dark: rgba(255, 255, 255, 0.12);
+            --bg-light: #f5f5f5; --surface-light: #ffffff; --primary-light: #6200ee; --secondary-light: #018786; --text-light: rgba(0, 0, 0, 0.87); --text-secondary-light: rgba(0, 0, 0, 0.6); --border-light: rgba(0, 0, 0, 0.12);
+        }
+        html { height: 100%; }
+        body {
+            font-family: 'Kanit', sans-serif; margin: 0; transition: background-color 0.3s, color 0.3s;
+            min-height: 100%; display: flex; flex-direction: column;
+        }
+        .container { width: 100%; max-width: 800px; margin: 0 auto; padding: 20px; display: flex; flex-direction: column; flex-grow: 1; }
+        body { background-color: var(--bg-dark); color: var(--text-dark); }
+        body.light-mode { background-color: var(--bg-light); color: var(--text-light); }
+
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border-dark); flex-shrink: 0; }
+        body.light-mode .header { border-bottom-color: var(--border-light); }
+        .header h1 { margin: 0; font-size: 1.8rem; font-weight: 700; color: var(--primary-dark); }
+        body.light-mode .header h1 { color: var(--primary-light); }
+        .theme-switch { position: relative; display: inline-block; width: 50px; height: 24px; }
+        .theme-switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--secondary-light); }
+        input:checked + .slider:before { transform: translateX(26px); }
+
+        .tabs { display: flex; flex-wrap: wrap; margin-bottom: 20px; flex-shrink: 0; }
+        .tab-link { padding: 10px 15px; cursor: pointer; border: none; background: none; color: var(--text-secondary-dark); font-family: 'Kanit', sans-serif; font-size: 1rem; transition: all 0.3s; border-bottom: 3px solid transparent; }
+        body.light-mode .tab-link { color: var(--text-secondary-light); }
+        .tab-link.active { color: var(--primary-dark); font-weight: 600; border-bottom-color: var(--primary-dark); }
+        body.light-mode .tab-link.active { color: var(--primary-light); border-bottom-color: var(--primary-light); }
+
+        #tabs-content { flex-grow: 1; }
+        .tab-content { display: none; height: 100%; }
+        .tab-content.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .zone-card { background-color: var(--surface-dark); padding: 25px; border-radius: 12px; border: 1px solid var(--border-dark); display: flex; flex-direction: column; gap: 20px; height: 100%; }
+        body.light-mode .zone-card { background-color: var(--surface-light); border-color: var(--border-light); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .prompt-display { padding: 20px; border-radius: 8px; background-color: var(--bg-dark); text-align: center; font-size: 1.2rem; font-weight: 500; color: var(--secondary-dark); border: 1px dashed var(--border-dark); }
+        body.light-mode .prompt-display { background-color: var(--bg-light); color: var(--secondary-light); border-color: var(--border-light); }
+        .form-group { display: flex; flex-direction: column; gap: 10px; }
+        .form-group input, .form-group textarea, .mixer-group select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-dark); background-color: var(--bg-dark); color: var(--text-dark); font-family: 'Kanit', sans-serif; font-size: 1rem; box-sizing: border-box; transition: border-color 0.3s, box-shadow 0.3s; }
+        body.light-mode .form-group input, body.light-mode .form-group textarea, body.light-mode .mixer-group select { background-color: var(--bg-light); color: var(--text-light); border-color: var(--border-light); }
+        .form-group textarea { min-height: 100px; resize: vertical; }
+        .btn { padding: 12px 20px; font-family: 'Kanit', sans-serif; font-size: 1rem; font-weight: 600; border-radius: 8px; border: none; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn:hover { filter: brightness(1.2); transform: translateY(-2px); }
+        .btn-primary { background-color: var(--primary-dark); color: #000; }
+        body.light-mode .btn-primary { background-color: var(--primary-light); color: #fff; }
+        .btn-secondary { background-color: var(--secondary-dark); color: #000; }
+        body.light-mode .btn-secondary { background-color: var(--secondary-light); color: #fff; }
+        .btn-tertiary { background: none; border: 1px solid var(--border-dark); color: var(--text-secondary-dark); }
+        body.light-mode .btn-tertiary { border-color: var(--border-light); }
+        .btn-group { display: flex; gap: 10px; }
+
+        .gimmick-container { background-color: var(--bg-dark); padding: 20px; border-radius: 8px; border: 1px solid var(--border-dark); }
+        body.light-mode .gimmick-container { background-color: var(--bg-light); border-color: var(--border-light); }
+        .gimmick-title { font-weight: 600; margin-bottom: 15px; color: var(--text-secondary-dark); border-bottom: 1px solid var(--border-dark); padding-bottom: 10px; }
+        body.light-mode .gimmick-title { color: var(--text-secondary-light); border-color: var(--border-light); }
+        .gimmick-content { display: flex; justify-content: center; align-items: center; min-height: 80px; flex-direction: column; gap: 15px; }
+        .ai-tip { font-size: 0.9rem; font-style: italic; color: var(--secondary-dark); text-align: left; width: 100%; }
+        body.light-mode .ai-tip { color: var(--secondary-light); }
+        .ai-tip span { display: block; margin-bottom: 5px; }
+        .ai-tip strong { color: var(--text-dark); }
+        body.light-mode .ai-tip strong { color: var(--text-light); }
+
+        #project-list, #pinned-list { list-style: none; padding: 0; }
+        #project-list li, #pinned-list li { background: var(--surface-dark); padding: 15px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: background-color .3s; }
+        body.light-mode #project-list li, body.light-mode #pinned-list li { background: var(--surface-light); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        #project-list li:hover, #pinned-list li:hover { background-color: var(--bg-light); }
+        body.light-mode #project-list li:hover, body.light-mode #pinned-list li:hover { background-color: #e9e9e9; }
+        .item-header { display: flex; justify-content: space-between; align-items: center; }
+        .item-name { font-weight: 600; }
+        .item-prompt { font-size: 0.9rem; opacity: 0.7; margin-top: 5px; }
+        
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 1000; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: all .3s; }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .sprint-modal { background: var(--surface-dark); padding: 30px; border-radius: 16px; text-align: center; max-width: 90%; }
+        #sprint-timer { font-size: 3rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 15px; }
+        #sprint-prompt { font-size: 1.5rem; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="header">
+            <h1>Idea Generator</h1>
+            <label class="theme-switch">
+                <input type="checkbox" id="theme-toggle" />
+                <span class="slider"></span>
+            </label>
+        </header>
+
+        <nav class="tabs"></nav>
+        <main id="tabs-content"></main>
+    </div>
+    
+    <div id="sprint-modal-overlay" class="modal-overlay">
+        <div class="sprint-modal">
+            <h2>Creative Sprint!</h2>
+            <div id="sprint-timer">5:00</div>
+            <p id="sprint-prompt">เตรียมตัว...</p>
+            <button id="sprint-close-btn" class="btn btn-secondary" style="margin-top: 20px;">ยอมแพ้</button>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- DATABASE ---
+        const zones = [
+            { id: 'drawing', name: "วาดรูป" }, { id: 'photo-manipulation', name: "ตัดต่อภาพ" },
+            { id: 'photography', name: "ถ่ายภาพ" }, { id: 'photo-editing', name: "แต่งภาพ" },
+            { id: 'animation', name: "อนิเมะชั่น" }, { id: 'rigging', name: "ริกกิง" },
+            { id: 'mixer', name: "ห้องผสมไอเดีย" }, { id: 'projects', name: "คลังข้อมูล" }
+        ];
+        const promptsDB = {
+            drawing: { subject: ["อัศวิน", "มังกร", "หุ่นยนต์", "นักเวท", "เอลฟ์", "ยักษ์", "พ่อค้า", "นักสำรวจ"], action: ["กำลังต่อสู้กับ", "กำลังค้นพบ", "กำลังสร้าง", "กำลังหลบหนีจาก", "กำลังปกป้อง", "กำลังเดินทางผ่าน"], context: ["เมืองลอยฟ้า", "ซากปรักหักพังใต้ทะเล", "ป่าเรืองแสง", "ดาวเคราะห์ร้าง", "ห้องสมุดโบราณ", "ตลาดกลางคืน"] },
+            'photo-manipulation': { subject: ["ภาพบุคคล", "ภาพสัตว์เลี้ยง", "ภาพทิวทัศน์", "ภาพตึกในเมือง"], action: ["ให้ลอยอยู่กลางอากาศ", "ให้แตกสลายเป็นชิ้นเล็กๆ", "ให้รวมเข้ากับ", "ให้มีแสงออกมาจากภายใน"], context: ["ภาพกลุ่มดาวกาแล็กซี", "ภาพคลื่นทะเล", "ภาพลายเส้นเรขาคณิต", "ภาพเปลวไฟ"] },
+            photography: { subject: ["เงาสะท้อนบนแอ่งน้ำ", "แสงไฟจากรถยนต์", "คนเดินถนน", "ดอกไม้"], action: ["โดยใช้เทคนิค Long Exposure", "โดยใช้กฎสามส่วน", "ในมุมมองแบบ Macro"], context: ["ในตอนกลางคืน", "หลังฝนตก", "แบบภาพขาวดำ"] },
+            'photo-editing': { subject: ["ภาพบุคคล", "ภาพทิวทัศน์", "ภาพอาหาร"], action: ["ปรับโทนสีให้เป็นแนว", "สร้างเอฟเฟกต์แบบ", "เน้นเฉพาะสี"], context: ["Cyberpunk (นีออน)", "วินเทจฟิล์ม", "Duotone"] },
+            animation: { subject: ["ลูกบอล", "ตัวละครสไลม์", "ตัวอักษร", "ดาบ"], action: ["กำลังเด้ง", "กำลังวิ่ง", "กำลังแปลงร่าง", "กำลังแกว่ง"], context: ["เหมือนมีน้ำหนักมาก", "ด้วยความเร็วสูง", "แบบเฟรมต่อเฟรม"] },
+            rigging: { subject: ["ตัวละครมนุษย์", "สัตว์สี่ขา", "ปลาหมึก", "หุ่นยนต์"], action: ["ใส่กระดูกที่", "สร้าง Controller สำหรับ", "ทำ Weight Paint บริเวณ"], context: ["แขนให้มี IK/FK Switch", "นิ้วมือทั้งห้า", "หนวดให้ขยับอิสระ"] },
+            negativeConstraints: ["โดยไม่ใช้สีแดง", "โดยไม่ใช้เส้นตรง", "ให้ดูน่ากลัว", "ในสไตล์มินิมอล", "ให้มีแต่องค์ประกอบทรงกลม"]
+        };
+        const tipsDB = {
+            'อัศวิน': "ลองศึกษาเกราะยุคกลางเพื่อความสมจริง", 'มังกร': "เกล็ดและปีกคือจุดเด่นที่ทำให้มังกรดูน่าเกรงขาม", 'หุ่นยนต์': "กลไกและข้อต่อคือหัวใจของดีไซน์",
+            'เมืองลอยฟ้า': "อย่าลืมองค์ประกอบที่ทำให้เชื่อว่ามันลอยอยู่ได้", 'Long Exposure': "ต้องใช้ขาตั้งกล้องที่มั่นคงนะ!",
+            'Cyberpunk': "เน้นคู่สีตรงข้ามอย่างชมพู/ฟ้า และเพิ่มเอฟเฟกต์เรืองแสง (Glow)", 'ลูกบอล': "อย่าลืมหลัก 'Squash and Stretch'!",
+            'IK/FK': "IK เหมาะกับการให้มือหรือเท้าไปยันกับสิ่งของ ส่วน FK เหมาะกับการโบกมืออิสระ"
+        };
+        
+        let sprintTimerInterval = null;
+        
+        // --- UI ELEMENTS ---
+        const tabsContainer = document.querySelector('.tabs');
+        const contentContainer = document.getElementById('tabs-content');
+        const themeToggle = document.getElementById('theme-toggle');
+        const sprintModal = document.getElementById('sprint-modal-overlay');
+        const sprintTimerEl = document.getElementById('sprint-timer');
+        const sprintPromptEl = document.getElementById('sprint-prompt');
+        const sprintCloseBtn = document.getElementById('sprint-close-btn');
+
+        // --- FUNCTIONS ---
+        function createTab(zone) {
+            const tabLink = document.createElement('button');
+            tabLink.className = 'tab-link';
+            tabLink.textContent = zone.name;
+            tabLink.dataset.tab = zone.id;
+            tabsContainer.appendChild(tabLink);
+        }
+
+        function createTabContent(zone) {
+            const tabContent = document.createElement('div');
+            tabContent.id = zone.id;
+            tabContent.className = 'tab-content';
+            let contentHTML = '';
+            switch(zone.id) {
+                case 'projects':
+                    contentHTML = `<div class="zone-card"><h2 style="margin-bottom:15px;">คลังโปรเจกต์</h2><ul id="project-list"></ul><h2 style="margin-top:20px;">ไอเดียที่ปักหมุดไว้</h2><ul id="pinned-list"></ul></div>`;
+                    break;
+                case 'mixer':
+                    const options = zones.filter(z => z.id !== 'projects' && z.id !== 'mixer').map(z => `<option value="${z.id}">${z.name}</option>`).join('');
+                    contentHTML = `<div class="zone-card">
+                        <div class="prompt-display" id="prompt-mixer">เลือกหมวดหมู่แล้วกดสุ่ม</div>
+                        <div class="gimmick-container">
+                            <div class="gimmick-title">AI แนะนำ</div>
+                            <div class="gimmick-content"><p class="ai-tip" id="tip-mixer"></p></div>
+                        </div>
+                        <div class="form-group mixer-group" style="flex-direction: row; gap: 10px;">
+                            <select id="mixer-base" style="flex:1;">${options}</select>
+                            <select id="mixer-style" style="flex:1;">${options}</select>
+                        </div>
+                        <button class="btn btn-primary randomize-btn" data-zone="mixer">สุ่มไอเดียผสม</button>
+                    </div>`;
+                    break;
+                default:
+                    contentHTML = `
+                        <div class="zone-card">
+                            <div class="prompt-display" id="prompt-${zone.id}"></div>
+                            <div class="gimmick-container">
+                                <div class="gimmick-title">AI แนะนำ</div>
+                                <div class="gimmick-content"><p class="ai-tip" id="tip-${zone.id}"></p></div>
+                            </div>
+                            <div class="btn-group">
+                                <button class="btn btn-primary randomize-btn" data-zone="${zone.id}">สุ่มไอเดียใหม่</button>
+                                <button class="btn btn-tertiary pin-btn" data-zone="${zone.id}">📌 ปักหมุด</button>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" id="name-${zone.id}" placeholder="ชื่อโปรเจกต์...">
+                                <textarea id="notes-${zone.id}" placeholder="บันทึกโน้ตเพิ่มเติม..."></textarea>
+                            </div>
+                            <div class="btn-group">
+                                <button class="btn btn-secondary save-btn" data-zone="${zone.id}">บันทึกโปรเจกต์นี้</button>
+                                <button class="sprint-mode-btn btn btn-tertiary" data-zone="${zone.id}">🚀 Sprint!</button>
+                            </div>
+                        </div>`;
+                    break;
+            }
+            tabContent.innerHTML = contentHTML;
+            contentContainer.appendChild(tabContent);
+        }
+
+        function setupEventListeners() {
+            tabsContainer.addEventListener('click', function(e) {
+                if (e.target.classList.contains('tab-link')) setActiveTab(e.target.dataset.tab);
+            });
+            contentContainer.addEventListener('click', function(e) {
+                const target = e.target;
+                if (target.classList.contains('randomize-btn')) randomizePrompt(target.dataset.zone);
+                if (target.classList.contains('save-btn')) saveProject(target.dataset.zone);
+                if (target.classList.contains('pin-btn')) pinIdea(target.dataset.zone);
+                if (target.classList.contains('sprint-mode-btn')) startSprint(target.dataset.zone);
+                const projectItem = target.closest('.project-item');
+                if (projectItem) loadProject(projectItem.dataset.projectId);
+                const pinnedItem = target.closest('.pinned-item');
+                if (pinnedItem) loadPinnedIdea(pinnedItem.dataset.pinnedId);
+            });
+            themeToggle.addEventListener('change', function() {
+                const theme = themeToggle.checked ? 'light' : 'dark';
+                applyTheme(theme);
+                localStorage.setItem('theme', theme);
+            });
+            sprintCloseBtn.addEventListener('click', stopSprint);
+        }
+
+        function setActiveTab(tabId) {
+            tabsContainer.querySelectorAll('.tab-link').forEach(function(tab) {
+                tab.classList.toggle('active', tab.dataset.tab === tabId);
+            });
+            contentContainer.querySelectorAll('.tab-content').forEach(function(content) {
+                content.classList.toggle('active', content.id === tabId);
+            });
+            localStorage.setItem('lastActiveTab', tabId);
+            if (tabId === 'projects') renderProjectLists();
+        }
+
+        function randomizePrompt(zoneId) {
+            let fullPrompt = "เกิดข้อผิดพลาด";
+            if (zoneId === 'mixer') {
+                const baseZoneId = document.getElementById('mixer-base').value;
+                const styleZoneId = document.getElementById('mixer-style').value;
+                if (baseZoneId === styleZoneId) { alert("กรุณาเลือกหมวดหมู่ที่แตกต่างกัน"); return; }
+                const baseParts = promptsDB[baseZoneId];
+                const styleParts = promptsDB[styleZoneId];
+                const subject = baseParts.subject[Math.floor(Math.random() * baseParts.subject.length)];
+                const action = baseParts.action[Math.floor(Math.random() * baseParts.action.length)];
+                const context = styleParts.context[Math.floor(Math.random() * styleParts.context.length)];
+                fullPrompt = `${subject} ${action} ${context}`;
+            } else {
+                const promptParts = promptsDB[zoneId];
+                if (!promptParts) return;
+                const subject = promptParts.subject[Math.floor(Math.random() * promptParts.subject.length)];
+                const action = promptParts.action[Math.floor(Math.random() * promptParts.action.length)];
+                const context = promptParts.context[Math.floor(Math.random() * promptParts.context.length)];
+                fullPrompt = `${subject} ${action} ${context}`;
+                if (Math.random() < 0.25) {
+                    const constraint = promptsDB.negativeConstraints[Math.floor(Math.random() * promptsDB.negativeConstraints.length)];
+                    fullPrompt += `... ${constraint}`;
+                }
+            }
+            document.getElementById(`prompt-${zoneId}`).textContent = fullPrompt;
+            updateAiTip(zoneId, fullPrompt);
+        }
+
+        function updateAiTip(zoneId, promptText) {
+            const tipEl = document.getElementById(`tip-${zoneId}`);
+            if (!tipEl) return;
+            const keywords = Object.keys(tipsDB);
+            let foundTips = new Set();
+            for (const key of keywords) {
+   
